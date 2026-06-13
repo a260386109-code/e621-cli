@@ -32,6 +32,14 @@
     "api",
     "openapi"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/a260386109-code/e621-cli"
+  },
+  "bugs": {
+    "url": "https://github.com/a260386109-code/e621-cli/issues"
+  },
+  "homepage": "https://github.com/a260386109-code/e621-cli#readme",
   "license": "MIT",
   "dependencies": {
     "commander": "^12.1.0",
