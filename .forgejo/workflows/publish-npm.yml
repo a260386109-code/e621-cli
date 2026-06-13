@@ -1,0 +1,70 @@
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+
+  # 允许在 Forgejo Actions 页面手动执行
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: docker
+
+    container:
+      image: node:22-bookworm
+
+    steps:
+      - name: Checkout repository
+        uses: https://data.forgejo.org/actions/checkout@v4
+
+      - name: Configure npm authentication
+        run: |
+          printf '%s\n' \
+            'registry=https://registry.npmjs.org/' \
+            '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' \
+            > "$HOME/.npmrc"
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Build package
+        run: npm run build --if-present
+
+      - name: Check package contents
+        run: npm pack --dry-run
+
+      - name: Check whether version already exists
+        id: package
+        shell: bash
+        run: |
+          PACKAGE_NAME="$(node -p "require('./package.json').name")"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+
+          echo "name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+
+          echo "Checking $PACKAGE_NAME@$PACKAGE_VERSION"
+
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version \
+            --registry=https://registry.npmjs.org/ >/dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "$PACKAGE_NAME@$PACKAGE_VERSION already exists; skipping publish."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "$PACKAGE_NAME@$PACKAGE_VERSION will be published."
+          fi
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish package
+        if: steps.package.outputs.publish == 'true'
+        run: npm publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
