@@ -1,0 +1,46 @@
+{
+  "name": "e621-cli",
+  "version": "0.1.0",
+  "description": "AI-friendly command line client for the e621 API.",
+  "type": "module",
+  "bin": {
+    "e621": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "schemas/openapi.yaml",
+    "skills/e621-cli",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/clean.mjs && tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:live": "node scripts/run-live-tests.mjs",
+    "openapi:refresh": "node scripts/refresh-openapi.mjs",
+    "smoke": "node dist/cli.js --version",
+    "prepack": "npm run check && npm run test && npm run build && npm run smoke"
+  },
+  "keywords": [
+    "e621",
+    "e926",
+    "cli",
+    "api",
+    "openapi"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

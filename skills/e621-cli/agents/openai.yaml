@@ -1,0 +1,4 @@
+interface:
+  display_name: "e621 CLI"
+  short_description: "Discover e621 CLI resource commands, inspect --help, and call the API safely."
+  default_prompt: "Use $e621-cli to discover the local e621 CLI commands, inspect --help for the chosen method, and return structured results."
